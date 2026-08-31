@@ -1,0 +1,38 @@
+---
+// Связка «предыдущий / следующий этап» в конце страницы этапа.
+// Заменяет собой одинокую кнопку-CTA общесетевого архетипа: с этапа логично
+// уходить не только в заявку, но и дальше по циклу.
+import { stages } from '../data/stages';
+
+export interface Props {
+  current: string;
+}
+const { current } = Astro.props;
+const idx = stages.findIndex((s) => s.slug === current);
+const prev = idx > 0 ? stages[idx - 1] : null;
+const next = idx >= 0 && idx < stages.length - 1 ? stages[idx + 1] : null;
+---
+<nav class="stagenav" aria-label="Соседние этапы">
+  {prev ? (
+    <a class="stagenav__link stagenav__link--prev" href={prev.href}>
+      <span class="stagenav__label"><span aria-hidden="true">←</span> Предыдущий этап</span>
+      <span class="stagenav__name">{prev.num} · {prev.name}</span>
+    </a>
+  ) : (
+    <a class="stagenav__link stagenav__link--prev" href="/etapy/">
+      <span class="stagenav__label"><span aria-hidden="true">←</span> Раздел</span>
+      <span class="stagenav__name">Все этапы работы крана</span>
+    </a>
+  )}
+  {next ? (
+    <a class="stagenav__link stagenav__link--next" href={next.href}>
+      <span class="stagenav__label">Следующий этап <span aria-hidden="true">→</span></span>
+      <span class="stagenav__name">{next.num} · {next.name}</span>
+    </a>
+  ) : (
+    <a class="stagenav__link stagenav__link--next" href="/#smeta">
+      <span class="stagenav__label">Дальше <span aria-hidden="true">→</span></span>
+      <span class="stagenav__name">Смета владения за весь цикл</span>
+    </a>
+  )}
+</nav>

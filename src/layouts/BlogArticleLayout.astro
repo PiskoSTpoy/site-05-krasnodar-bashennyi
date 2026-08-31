@@ -1,0 +1,449 @@
+---
+// Волна 11: единый layout для статей блога.
+// Три UX-элемента поверх BaseLayout:
+//   1) reading progress bar (fixed top, scaleX по scrollTop внутри <article>);
+//   2) table of contents (SSR по headings prop; desktop sticky сбоку, mobile <details> в начале);
+//      подсветка активной секции — IntersectionObserver; ToC рендерится только если >= 3 h2.
+//   3) related posts (реальные статьи из shared реестра, кроме текущей).
+// Progressive enhancement: reading-progress без JS скрыт (JS ставит класс .js на <html>);
+// ToC — якорная навигация работает и без JS (SSR ссылки на существующие h2#id);
+// reduced-motion: reading-progress без transition; ToC-highlight остаётся; related без fade.
+import BaseLayout from './BaseLayout.astro';
+import { blogPosts } from '../data/blogPosts';
+
+export interface Props {
+  title: string;
+  description: string;
+  path: string;
+  ldExtra?: object[];
+  slug: string;
+  h1: string;
+  headings: Array<{ id: string; text: string }>;
+  eyebrow?: string;
+  byline?: string;
+  crumbTitle: string;
+}
+
+const {
+  title,
+  description,
+  path,
+  ldExtra = [],
+  slug,
+  h1,
+  headings,
+  eyebrow = 'Разбор для заказчика',
+  byline = 'Инженерная служба КРАН-КУБАНЬ · обновлено в 2026 году',
+  crumbTitle,
+} = Astro.props;
+
+const showToc = headings.length >= 3;
+// related — все реально существующие статьи, кроме текущей; до 3-х
+const related = blogPosts.filter((p) => p.slug !== slug).slice(0, 3);
+---
+<BaseLayout title={title} description={description} path={path} ldExtra={ldExtra}>
+  <div class="read-progress" aria-hidden="true"><div class="read-progress__bar" data-progress-bar></div></div>
+  <main>
+    <nav class="crumbs wrap" aria-label="Хлебные крошки">
+      <a href="/">Главная</a><span aria-hidden="true">/</span><a href="/blog/">Блог</a><span aria-hidden="true">/</span><span aria-current="page">{crumbTitle}</span>
+    </nav>
+
+    <div class={showToc ? 'article-shell article-shell--with-toc wrap' : 'article-shell wrap'}>
+      {showToc && (
+        <nav class="toc-desktop" aria-label="Оглавление статьи">
+          <div class="toc-desktop__sticky">
+            <p class="toc__title">В этой статье</p>
+            <ol class="toc__list" data-toc-list>
+              {headings.map((h) => (
+                <li><a href={`#${h.id}`} data-toc-link={h.id}>{h.text}</a></li>
+              ))}
+            </ol>
+          </div>
+        </nav>
+      )}
+
+      <div class="article-main">
+        {showToc && (
+          <details class="toc-mobile">
+            <summary>Оглавление <span class="toc-mobile__count">{headings.length}</span></summary>
+            <nav aria-label="Оглавление статьи (мобильное)"><ol class="toc__list toc__list--mobile">
+              {headings.map((h) => (
+                <li><a href={`#${h.id}`}>{h.text}</a></li>
+              ))}
+            </ol></nav>
+          </details>
+        )}
+
+        <!-- data-dropcap: буквица ставится ровно на ПЕРВЫЙ абзац статьи,
+             селектором `.article__byline + p` в BaseLayout. Если статья
+             открывается не абзацем (список, иллюстрация), правило просто не
+             сработает — ломать нечего. -->
+        <article class="prose" data-article>
+          <span class="eyebrow">{eyebrow}</span>
+          <h1 class="article__h1">{h1}</h1>
+          <p class="article__byline">{byline}</p>
+          <slot />
+        </article>
+
+        {related.length > 0 && (
+          <section class="related" aria-labelledby="related-title">
+            <h2 id="related-title" class="related__title">Читать дальше</h2>
+            <div class={related.length < 3 ? 'related__grid related__grid--few' : 'related__grid'}>
+              {related.map((p) => (
+                <a class="card-reg related__card" href={p.href}>
+                  <span class="related__tag">Статья</span>
+                  <h3 class="related__cardtitle">{p.title}</h3>
+                  <p class="related__excerpt">{p.excerpt}</p>
+                  <span class="related__more">Читать <span aria-hidden="true">→</span></span>
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
+    </div>
+
+    <section class="section wrap">
+      <a class="btn" href="/#order">Обсудить проект монтажа <span aria-hidden="true">→</span></a>
+    </section>
+  </main>
+
+  <style is:global>
+    /* --- reading progress --- */
+    .read-progress {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      z-index: 40;
+      pointer-events: none;
+      background: transparent;
+      display: none; /* прогрессивное усиление — показываем только когда JS активен */
+    }
+    html.js .read-progress { display: block; }
+    .read-progress__bar {
+      height: 100%;
+      width: 100%;
+      background: var(--accent);
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform .12s linear;
+      will-change: transform;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .read-progress__bar { transition: none; }
+    }
+
+    /* --- article shell (общая обёртка) --- */
+    .article-shell { padding-block: clamp(20px, 3vw, 40px) clamp(48px,6vw,88px); }
+    .article-shell--with-toc {
+      display: grid;
+      grid-template-columns: 240px minmax(0, 1fr);
+      gap: clamp(24px, 4vw, 56px);
+      align-items: start;
+    }
+    .article-main { min-width: 0; }
+    .article-main .prose { max-width: 68ch; }
+    .article__h1 { font-size: var(--d-lg); margin: 16px 0 10px; max-width: 20ch; }
+    /* Подпись автора набрана как выходные данные статьи: рубрика прописными
+       с линейкой под ней, а не серая строчка мелким кеглем. */
+    .article__byline {
+      color: var(--muted); font-size: var(--t-rubric); font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase;
+      margin-bottom: 30px; padding-bottom: 14px; border-bottom: 1px solid var(--rule);
+    }
+
+    /* --- table of contents: desktop sticky sidebar --- */
+    .toc-desktop { display: block; }
+    .toc-desktop__sticky {
+      position: sticky;
+      top: 96px; /* высота nav ≈ 74px + запас */
+      padding-left: 14px;
+      border-left: 1px solid var(--line);
+    }
+    .toc__title {
+      font-family: var(--text);
+      font-size: var(--t-rubric);
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+    .toc__list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-family: var(--text);
+      font-size: var(--t-aux);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      counter-reset: toc;
+    }
+    .toc__list li {
+      counter-increment: toc;
+      position: relative;
+      padding-left: 24px;
+    }
+    .toc__list li::before {
+      content: counter(toc, decimal-leading-zero);
+      position: absolute;
+      left: 0;
+      top: 3px;
+      /* номер пункта оглавления — Literata: tabular-nums работает только у неё */
+      font-size: var(--t-rubric);
+      font-family: var(--text);
+      font-weight: 700;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+    .toc__list a {
+      text-decoration: none;
+      color: var(--muted);
+      transition: color .12s ease;
+      line-height: 1.35;
+      display: inline-block;
+    }
+    .toc__list a:hover { color: var(--accent); }
+    .toc__list a[data-toc-active="true"] {
+      color: var(--ink);
+      font-weight: 700;
+    }
+    .toc__list a[data-toc-active="true"]::after {
+      /* подсветка активного пункта — акцентная точка справа, без сдвига layout */
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    /* На мобильных ToC сайдбар прячем, статью в одну колонку */
+    @media (max-width: 900px) {
+      .article-shell--with-toc { grid-template-columns: 1fr; }
+      .toc-desktop { display: none; }
+    }
+
+    /* --- table of contents: mobile <details> --- */
+    .toc-mobile {
+      display: none;
+      border: 1px solid var(--rule);
+      border-top: 2px solid var(--ink);
+      background: var(--surface);
+      margin-bottom: 28px;
+    }
+    @media (max-width: 900px) { .toc-mobile { display: block; } }
+    .toc-mobile summary {
+      cursor: pointer;
+      padding: 14px 18px;
+      font-weight: 700;
+      font-family: var(--text);
+      font-size: var(--t-aux);
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .toc-mobile summary::-webkit-details-marker { display: none; }
+    .toc-mobile summary::after {
+      content: "+";
+      color: var(--accent);
+      font-family: var(--text);
+      font-weight: 700;
+      font-size: var(--t-mark);
+      line-height: 1;
+    }
+    .toc-mobile[open] summary::after { content: "−"; }
+    .toc-mobile summary:active { color: var(--accent-press); }
+    .toc-mobile__count {
+      display: inline-block;
+      color: var(--muted);
+      font-weight: 400;
+      font-size: var(--t-note);
+      font-variant-numeric: tabular-nums;
+      margin-left: auto;
+      margin-right: 12px;
+    }
+    .toc__list--mobile {
+      padding: 4px 18px 18px 18px;
+      border-top: 1px solid var(--line);
+      gap: 12px;
+    }
+    .toc__list--mobile li { padding-left: 26px; }
+    .toc__list--mobile a { color: var(--ink); }
+
+    /* offset для якорной навигации: общий scroll-padding-top: 92px объявлен
+       у html в BaseLayout и покрывает все якоря сайта — поимённый запас снят,
+       чтобы он не складывался с общим и заголовок не уезжал вниз на 182 px */
+
+    /* --- related posts --- */
+    .related {
+      margin-top: clamp(48px, 6vw, 72px);
+      padding-top: clamp(28px, 4vw, 40px);
+      border-top: 2px solid var(--ink);
+    }
+    .related__title {
+      font-size: var(--d-sm);
+      margin-bottom: 24px;
+    }
+    .related__grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+    /* Волна 14: после дедупликации в блоге осталось две статьи, значит в «Читать дальше»
+       у каждой ровно одна карточка. В сетке на три колонки одинокая карточка выглядела
+       обрывком, поэтому при 1-2 карточках переходим на две колонки. */
+    .related__grid--few { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    /* minmax(0, 1fr), а не 1fr: у колонки 1fr автоматический минимум равен
+       min-content, и длинное слово в заголовке карточки распирает контейнер
+       вместо того, чтобы перенестись. overflow-wrap: break-word на min-content
+       НЕ влияет (по спецификации ширина считается так, как будто его нет) —
+       поэтому одного его мало, нужен явный нулевой минимум колонки.
+       Замерено на 320 px: карточка выходила за край на 21 px. */
+    @media (max-width: 900px) { .related__grid, .related__grid--few { grid-template-columns: minmax(0, 1fr); } }
+    .related__card { min-width: 0; }
+    /* Карточка «Читать дальше» переведена на общий словарь .card-reg
+       (BaseLayout): тяжёлая линейка сверху вместо одинаковой рамки 1px со
+       всех сторон. Тот же приём у карточек парка на главной и у карточек
+       блога — три разных места, один язык, одно правило. */
+    .related__card { padding: 22px 22px 24px; }
+    .related__card:hover .related__cardtitle { color: var(--accent); }
+    .related__tag {
+      display: block;
+      color: var(--accent);
+      font-size: var(--t-rubric);
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      font-family: var(--text);
+    }
+    /* Перенос длинных слов в узкой колонке. Появилось не «на всякий случай»:
+       после перехода заголовков на Prata «Сейсмическое микрорайонирование»
+       перестало помещаться в карточку — слово «микрорайонирование» на 17,92px
+       занимает 199px, а колонка сетки на 1280px даёт 185px и на 1024px всего
+       142px. Слово торчало из рамки карточки на 14 и 43px соответственно
+       (замерено в браузере, scrollWidth против clientWidth); у PT Serif, который
+       уже, оно помещалось. hyphens: auto ставит нормальный перенос со знаком —
+       у html стоит lang="ru", словарь у браузера есть; overflow-wrap — страховка
+       для тех, у кого русского словаря переносов нет: там слово разрежется без
+       дефиса, но останется внутри карточки. На коротких словах ни то, ни другое
+       не срабатывает, поэтому на остальные заголовки блока это не влияет. */
+    .related__cardtitle {
+      margin: 11px 0 12px;
+      padding-top: 11px;
+      border-top: 1px solid var(--line);
+      font-family: var(--display);
+      font-weight: 400;
+      font-size: var(--d-xs);
+      line-height: 1.26;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      transition: color .12s ease;
+    }
+    .related__excerpt {
+      color: var(--muted);
+      font-size: var(--t-aux);
+      line-height: 1.5;
+      font-family: var(--text);
+    }
+    .related__more {
+      display: inline-block;
+      margin-top: 16px;
+      color: var(--accent);
+      font-weight: 700;
+      font-size: var(--t-note);
+      font-family: var(--text);
+      letter-spacing: .02em;
+    }
+  </style>
+
+  <script is:inline>
+    // Помечаем корень как JS-активный — показывает reading progress bar.
+    document.documentElement.classList.add('js');
+  </script>
+
+  <script>
+    // --- Reading progress ---
+    // Прогресс = (scroll position внутри <article>) / (article height - viewport height).
+    // Без transition при prefers-reduced-motion (это отдельно снято на CSS-уровне).
+    function initReadingProgress() {
+      const bar = document.querySelector<HTMLElement>('[data-progress-bar]');
+      const article = document.querySelector<HTMLElement>('[data-article]');
+      if (!bar || !article) return;
+      let ticking = false;
+      function update() {
+        if (!bar || !article) return;
+        const rect = article.getBoundingClientRect();
+        const total = article.offsetHeight - window.innerHeight;
+        const scrolled = -rect.top;
+        let pct = total > 0 ? scrolled / total : 0;
+        if (pct < 0) pct = 0;
+        if (pct > 1) pct = 1;
+        bar.style.transform = `scaleX(${pct.toFixed(4)})`;
+        ticking = false;
+      }
+      function onScroll() {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll, { passive: true });
+      update();
+    }
+
+    // --- ToC active section highlight ---
+    // IntersectionObserver по h2[id]; активный = верхний видимый в верхней трети вьюпорта.
+    function initTocHighlight() {
+      const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]'));
+      if (!links.length) return;
+      const headings = links
+        .map((a) => document.getElementById(a.dataset.tocLink || ''))
+        .filter((el): el is HTMLElement => !!el);
+      if (!headings.length) return;
+      const linkById = new Map<string, HTMLAnchorElement>();
+      links.forEach((a) => { if (a.dataset.tocLink) linkById.set(a.dataset.tocLink, a); });
+      const visible = new Set<string>();
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            const id = (e.target as HTMLElement).id;
+            if (!id) return;
+            if (e.isIntersecting) visible.add(id); else visible.delete(id);
+          });
+          // Активный — тот, что выше всех видимых по документу.
+          let activeId: string | null = null;
+          let bestTop = Infinity;
+          headings.forEach((h) => {
+            if (visible.has(h.id)) {
+              const top = h.getBoundingClientRect().top;
+              if (top < bestTop) { bestTop = top; activeId = h.id; }
+            }
+          });
+          // Если ничего не пересекает область — активным остаётся последний прошедший h2 сверху.
+          if (!activeId) {
+            let prev: HTMLElement | null = null;
+            for (const h of headings) {
+              if (h.getBoundingClientRect().top < 120) prev = h;
+              else break;
+            }
+            if (prev) activeId = prev.id;
+          }
+          links.forEach((a) => { a.removeAttribute('data-toc-active'); a.removeAttribute('aria-current'); });
+          if (activeId) {
+            const link = linkById.get(activeId);
+            if (link) { link.setAttribute('data-toc-active', 'true'); link.setAttribute('aria-current', 'location'); }
+          }
+        },
+        { rootMargin: '-80px 0px -55% 0px', threshold: [0, 1] }
+      );
+      headings.forEach((h) => io.observe(h));
+    }
+
+    initReadingProgress();
+    initTocHighlight();
+  </script>
+</BaseLayout>

@@ -1,0 +1,378 @@
+---
+// Волна 16. Смета владения вместо пошагового визарда.
+//
+// ПОЧЕМУ НЕ ВИЗАРД. Пошаговый калькулятор («тип техники → срок → итог») описывает
+// разовую услугу: выбрал, посчитал, заказал. Башенный кран так не арендуют — его
+// ставят на объект на месяцы, и решение принимают на стадии проекта, сравнивая
+// коммерческие предложения, где месячная ставка выглядит похоже, а разовые
+// строки различаются в разы. Поэтому здесь не шаги, а смета: строки, которые
+// складываются в стоимость владения, и производная величина, ради которой всё
+// и считается, — сколько на самом деле стоит месяц.
+//
+// ЧЕСТНОСТЬ. Разовые строки по умолчанию нулевые: у нас доставка, монтаж,
+// устройство кранового пути и демонтаж входят в месячную ставку. Выдуманных
+// сумм за монтаж мы не публикуем — они зависят от модели крана, вылета, высоты
+// и площадки. Поля открыты для того, чтобы подставить цифры из ЧУЖОГО
+// коммерческого предложения и увидеть настоящую стоимость месяца.
+//
+// СТАВКИ. Сохранены проверенные ставки прежнего калькулятора: башенный кран —
+// от 240 000 ₽/мес, автокран — от 4 000 ₽/час, смена 8 часов (та же формула
+// «ставка/час × 8 × смены»).
+const RATE_TOWER = 240000;
+const RATE_AUTO = 4000;
+const DEFAULT_MONTHS = 6;
+---
+<section class="smeta" id="smeta" aria-labelledby="smeta-title">
+  <div class="smeta__head">
+    <span class="eyebrow">Смета владения</span>
+    <h2 id="smeta-title">Сколько стоит месяц башенного крана на самом деле</h2>
+    <p class="smeta__lead">
+      Месячная ставка — не цена аренды, а одна её строка. Впишите в разовые строки суммы из
+      коммерческого предложения (своего или чужого) и посмотрите на нижнюю цифру: она показывает,
+      во сколько обходится месяц с учётом мобилизации и демонтажа. Чем короче срок, тем сильнее
+      разовые расходы искажают «красивую» ставку.
+    </p>
+  </div>
+
+  <div class="smeta__wrap">
+    <table class="smeta__table">
+      <caption class="sr-only">Смета аренды башенного крана: разовые расходы, помесячная аренда и стоимость месяца владения</caption>
+      <thead>
+        <tr>
+          <th scope="col">Строка сметы</th>
+          <th scope="col" class="smeta__sum-col">Сумма, ₽</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">
+            <label for="sm-delivery">Доставка на объект и обратно</label>
+            <span class="smeta__explain">Перебазировка секций тралом. У нас входит в ставку — впишите сумму, если в вашей смете это отдельная строка</span>
+          </th>
+          <td class="smeta__sum"><input type="number" id="sm-delivery" data-sm="delivery" min="0" step="1000" value="0" inputmode="numeric" /></td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <label for="sm-mount">Монтаж, крановый путь или фундамент</label>
+            <span class="smeta__explain">Сборка, устройство и приёмка пути, анкеровка. У нас входит в ставку</span>
+          </th>
+          <td class="smeta__sum"><input type="number" id="sm-mount" data-sm="mount" min="0" step="1000" value="0" inputmode="numeric" /></td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <span class="smeta__rowtitle">Аренда крана</span>
+            <span class="smeta__formula">
+              <label class="sr-only" for="sm-rate">Ставка аренды, рублей в месяц</label>
+              <input type="number" id="sm-rate" data-sm="rate" min="0" step="1000" value={RATE_TOWER} inputmode="numeric" />
+              <span>₽/мес ×</span>
+              <label class="sr-only" for="sm-months">Срок аренды, месяцев</label>
+              <input type="number" id="sm-months" data-sm="months" min="1" max="48" step="1" value={DEFAULT_MONTHS} inputmode="numeric" />
+              <span>мес</span>
+            </span>
+          </th>
+          <td class="smeta__sum"><output data-sm-out="rent" for="sm-rate sm-months">1 440 000</output></td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <span class="smeta__rowtitle">Автокран на монтаж и демонтаж секций</span>
+            <span class="smeta__formula">
+              <span>{RATE_AUTO.toLocaleString('ru-RU')} ₽/час × 8 часов ×</span>
+              <label class="sr-only" for="sm-shifts">Количество смен автокрана</label>
+              <input type="number" id="sm-shifts" data-sm="shifts" min="0" max="30" step="1" value="0" inputmode="numeric" />
+              <span>смен</span>
+            </span>
+          </th>
+          <td class="smeta__sum"><output data-sm-out="auto" for="sm-shifts">0</output></td>
+        </tr>
+        <tr>
+          <th scope="row">
+            <label for="sm-dismount">Демонтаж и вывоз</label>
+            <span class="smeta__explain">Разборка, демонтаж пути, обратная транспортировка. У нас входит в ставку</span>
+          </th>
+          <td class="smeta__sum"><input type="number" id="sm-dismount" data-sm="dismount" min="0" step="1000" value="0" inputmode="numeric" /></td>
+        </tr>
+        <tr data-sm-row="seismic" hidden>
+          <th scope="row">
+            <label for="sm-seismic">Удорожание по сейсмике</label>
+            <span class="smeta__explain">Расчёт основания на сейсмическую нагрузку для площадки 7–9 баллов. Своей цифры не публикуем: объём работы задаёт балл и категория грунта</span>
+          </th>
+          <td class="smeta__sum"><input type="number" id="sm-seismic" data-sm="seismic" min="0" step="1000" value="0" inputmode="numeric" /></td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th scope="row">Итого за весь срок</th>
+          <td class="smeta__sum smeta__sum--total"><output data-sm-out="total">1 440 000</output></td>
+        </tr>
+        <tr>
+          <th scope="row">Стоимость одного месяца владения</th>
+          <td class="smeta__sum smeta__sum--total"><output data-sm-out="permonth">240 000</output></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="smeta__controls">
+    <label class="smeta__check">
+      <input type="checkbox" data-sm-toggle="seismic" />
+      <span>Площадка в сейсмической зоне 7–9 баллов</span>
+    </label>
+    <p class="aside-note smeta__note" data-sm-note hidden>
+      На таких площадках расчёт основания крана ведётся с сейсмической нагрузкой: пиковое ускорение
+      растёт вдвое на каждый балл — 0,1g при 7 баллах, 0,2g при 8 и 0,4g при 9 (СП 14.13330.2018).
+      Это отдельный этап проекта монтажа и отдельные дни в графике.
+      <a href="/seysmozony/">Как определяют балл вашей площадки</a>.
+    </p>
+    <p class="smeta__verdict" data-sm-verdict role="status"></p>
+  </div>
+
+  <!-- Условия, без которых цифра выше — не цена, а число. Ничего нового не
+       придумано: «входит / не входит» пересказывает пометки в самих строках
+       сметы («У нас входит в ставку» стоит у доставки, монтажа и демонтажа, у
+       автокрана и сейсмики — не стоит), а единица тарификации и минимальный
+       срок — это то, как считает таблица (₽/мес × месяцев, срок от 1;
+       ₽/час × 8 часов × смен). -->
+  <div class="smeta__terms">
+    <div>
+      <h3>Что входит в месячную ставку</h3>
+      <ul>
+        <li>доставка секций на объект и обратно тралом;</li>
+        <li>монтаж: сборка, устройство и приёмка кранового пути или фундамента, анкеровка;</li>
+        <li>демонтаж: разборка, снятие пути, обратная транспортировка.</li>
+      </ul>
+      <p>Поэтому три соответствующие строки сметы по умолчанию нулевые — отдельного счёта они
+        у нас не образуют. Поля оставлены открытыми, чтобы подставить в них суммы из чужого
+        коммерческого предложения и увидеть, во что превращается «красивая» ставка.</p>
+    </div>
+    <div>
+      <h3>Что не входит и оплачивается отдельно</h3>
+      <ul>
+        <li>расчёт основания на сейсмическую нагрузку для площадок 7–9 баллов: объём работы
+          задаёт балл и категория грунта, поэтому своей цифры мы не публикуем и в ставку её
+          не закладываем;</li>
+        <li>смены автокрана — в смете это отдельная строка, а не часть месячной ставки.</li>
+      </ul>
+    </div>
+  </div>
+
+  <p class="smeta__disclaimer">
+    <b>Единица тарификации.</b> Башенный кран считается за месяц, автокран — за час при
+    минимальной смене 8 часов; по этой же формуле работает таблица выше.
+    <b>Минимальный заказ</b> башенного крана — один месяц: помесячная ставка не делится на дни,
+    и срок в смете начинается с единицы.
+    <b>НДС.</b> Указать, идут суммы с НДС или без него, мы сможем только вместе с реквизитами
+    оператора — они пока не опубликованы (об этом прямо сказано в
+    <a href="/politika-obrabotki-personalnyh-dannyh/">политике обработки персональных данных</a>).
+    До тех пор режим налогообложения в цифрах сметы не отражён, и его стоит уточнить первым же
+    звонком.
+  </p>
+  <p class="smeta__disclaimer">
+    Ставки — ориентир «от»: 240 000 ₽/мес за башенный кран и 4 000 ₽/час за автокран при
+    восьмичасовой смене; действуют с <time datetime="2026-08-12">12 августа 2026 года</time> и
+    с тех пор не пересматривались. Точная цифра зависит от модели, вылета, высоты подъёма и
+    площадки, поэтому смета здесь — инструмент сравнения, а приведённый расчёт
+    <b>не является публичной офертой</b>.
+  </p>
+</section>
+
+<style>
+  /* Смета — отдельная ЧАСТЬ досье, поэтому открывается и закрывается той же
+     двойной линейкой, что и остальные границы частей (см. .stage--part). */
+  /* Нижняя граница снята: следующая часть (#faq) открывается собственной
+     двойной линейкой, и раньше здесь стояли две линии подряд впритык. */
+  .smeta { border-top: 1px solid var(--ink); padding-block: clamp(40px, 6vw, 72px) clamp(12px, 2vw, 20px); position: relative; }
+  .smeta::before {
+    content: ""; position: absolute; left: 0; right: 0; top: 2px; height: 0;
+    border-top: 1px solid var(--ink);
+  }
+  .smeta__head h2 { font-size: var(--d-md); margin-top: 10px; }
+  .smeta__lead { margin-top: 18px; max-width: 62ch; color: #3D362E; font-size: var(--t-lead); }
+
+  /* Таблица в две колонки: пояснение и формула живут в той же ячейке, что и название
+     строки. Так смета помещается в 375 px без горизонтальной прокрутки — главный
+     инструмент страницы не должен требовать бокового свайпа на телефоне.
+     ПРАВКА ЭТОЙ ВОЛНЫ. min-width было 320 px — и на экране 320 px это давало
+     ровно тот дефект, который правило должно было предотвратить: поля страницы
+     съедают 2×18 px, контейнеру остаётся 284 px, а таблица требовала 320 —
+     главный инструмент сайта уезжал в собственный горизонтальный свайп.
+     Замерено в браузере: table.right = 338 при clientWidth 320.
+     Теперь минимум задан не константой, а суммой того, что реально должно
+     поместиться: колонка суммы (поле 92 px) плюс разумный минимум под
+     название строки. На 320 px таблица укладывается в 284 без прокрутки. */
+  .smeta__wrap { overflow-x: auto; margin-top: 26px; }
+  .smeta__table { border-collapse: collapse; width: 100%; min-width: 0; font-family: var(--text); font-size: var(--t-aux); }
+  .smeta__table th, .smeta__table td { text-align: left; padding: 15px 18px 15px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .smeta__table thead th { font-size: var(--t-rubric); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 700; border-bottom-color: var(--ink); }
+  .smeta__table tbody th { font-weight: 700; color: var(--ink); }
+  .smeta__table tbody th label:not(.sr-only), .smeta__rowtitle { display: block; }
+  .smeta__table tfoot th { font-weight: 700; color: var(--ink); font-size: var(--t-body); border-bottom: none; padding-top: 20px; vertical-align: middle; }
+  .smeta__table tfoot td { border-bottom: none; padding-top: 20px; vertical-align: middle; }
+  .smeta__table tfoot tr:first-child th, .smeta__table tfoot tr:first-child td { border-top: 2px solid var(--ink); }
+
+  .smeta__explain { display: block; margin-top: 7px; font-weight: 400; color: var(--muted); font-size: var(--t-note); line-height: 1.5; max-width: 52ch; }
+
+  .smeta__sum-col, .smeta__sum { text-align: right; white-space: nowrap; padding-right: 0 !important; }
+  /* Суммы сметы — Literata: только у неё есть tnum, а колонка рублей обязана
+     стоять ровно. У Prata цифры разной ширины, tabular-nums на ней ничего
+     не даёт (фичи в шрифте нет) — числа поехали бы по правому краю. */
+  .smeta__sum output { font-family: var(--text); font-weight: 700; font-size: var(--t-body); color: var(--ink); font-variant-numeric: tabular-nums; }
+  /* Итоговое число — ради него блок и существует, а было 24 px против
+     собственного заголовка блока в 31,2 px, то есть высказывание оказалось
+     мельче подписи к нему. Теперь 44 px на широком экране: крупнее заголовка
+     секции и крупнее всего остального в смете. */
+  .smeta__sum--total output { font-size: var(--n-total); font-weight: 700; line-height: 1.05; color: var(--accent); }
+
+  /* Границы полей — var(--field-line): 3.39:1 к белому, WCAG 1.4.11 для контуров контролов */
+  .smeta input[type="number"] {
+    background: var(--surface); border: 1px solid var(--field-line); color: var(--ink);
+    font-family: var(--text); font-size: var(--t-aux); padding: 8px 10px; min-height: 44px;
+    width: 106px; max-width: 100%; text-align: right; font-variant-numeric: tabular-nums;
+    transition: border-color .14s ease;
+  }
+  .smeta input[type="number"]:hover { border-color: var(--ink); }
+  .smeta__formula { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; font-weight: 400; }
+  .smeta__formula input[type="number"] { width: 88px; }
+  .smeta__formula span { color: var(--ink); font-size: var(--t-note); font-variant-numeric: tabular-nums; }
+
+  .smeta__controls { margin-top: 28px; max-width: 68ch; }
+  .smeta__check { display: flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer; font-size: var(--t-aux); font-family: var(--text); }
+  .smeta__check input { width: 17px; height: 17px; flex-shrink: 0; accent-color: var(--accent); }
+  /* Пояснение про сейсмику переведено на общий класс врезки .aside-note:
+     раньше здесь стояла акцентная граница слева 3px, а у .honest и
+     .post-card__why — 2px, то есть один и тот же приём был скопирован в три
+     файла и уже разъехался по толщине. */
+  /* Рамка врезки общая, но начертание ПРЯМОЕ, а не курсивное: у .honest и
+     .post-card__why курсив уместен — это авторская оговорка; здесь же
+     фактическое пояснение с числами (0,1g / 0,2g / 0,4g), а наклонные цифры
+     в таком ряду читаются хуже прямых. Кегль — вспомогательная ступень. */
+  .smeta__note { color: #3D362E; font-style: normal; font-size: var(--t-aux); }
+  .smeta__note[hidden] { display: none; }
+  .smeta__verdict { margin-top: 16px; font-size: var(--t-aux); font-family: var(--text); color: var(--ink); }
+  .smeta__verdict:empty { display: none; }
+  .smeta__verdict b { color: var(--accent); font-variant-numeric: tabular-nums; }
+  .smeta__disclaimer { margin-top: 24px; font-size: var(--t-note); color: var(--muted); max-width: 72ch; }
+  .smeta__disclaimer + .smeta__disclaimer { margin-top: 12px; }
+  .smeta__disclaimer b { color: var(--ink); }
+  .smeta__disclaimer a { color: var(--accent); }
+
+  /* «Входит / не входит» — две колонки, разделённые линией, без плашек и теней
+     (дизайн-код). На узком экране колонки становятся строками, линия переезжает
+     сверху второй колонки. */
+  /* minmax(min(280px, 100%), 1fr), а НЕ minmax(280px, 1fr). Вторая форма
+     физически не умеет сжать колонку ниже 280 px: на экране 320 px контейнеру
+     остаётся 284 px — запас четыре пикселя, и любое изменение полей страницы
+     распирало бы страницу целиком. min(280px, 100%) снимает нижний предел
+     ровно тогда, когда места меньше. */
+  .smeta__terms {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+    gap: clamp(20px, 4vw, 44px); margin-top: clamp(28px, 4vw, 40px);
+    padding-top: 22px; border-top: 2px solid var(--ink); max-width: 76ch;
+  }
+  .smeta__terms h3 { font-size: var(--d-xs); }
+  .smeta__terms ul { margin: 14px 0 0; padding-left: 20px; color: #3D362E; font-size: var(--t-aux); }
+  .smeta__terms li + li { margin-top: 8px; }
+  .smeta__terms p { margin-top: 14px; color: var(--muted); font-size: var(--t-note); }
+
+  @media (max-width: 520px) {
+    .smeta__table th, .smeta__table td { padding-right: 10px; }
+    .smeta input[type="number"] { width: 92px; }
+    .smeta__formula input[type="number"] { width: 78px; }
+  }
+  /* 320 px — минимум, который Яндекс называет в требованиях к мобильности.
+     Столбец сумм ужимается ещё на 12 px, чтобы название строки сметы
+     осталось читаемой колонкой, а не лесенкой по одному слову. */
+  @media (max-width: 360px) {
+    .smeta__table th, .smeta__table td { padding-right: 8px; }
+    .smeta input[type="number"] { width: 80px; }
+    .smeta__formula input[type="number"] { width: 72px; }
+  }
+</style>
+
+<script>
+  // Смета: чистая арифметика без округлений «в свою пользу».
+  //   аренда   = ставка × месяцы
+  //   автокран = 4000 × 8 × смены
+  //   итого    = разовые строки + аренда + автокран (+ сейсмика, если включена)
+  //   месяц    = итого / месяцы
+  // Строка сейсмики скрыта, пока чекбокс не включён, и не участвует в сумме,
+  // когда скрыта, — иначе выключенный флажок оставлял бы деньги в итоге.
+  function initSmeta() {
+    const root = document.querySelector<HTMLElement>('.smeta');
+    if (!root) return;
+    const get = (name: string) => root.querySelector<HTMLInputElement>(`[data-sm="${name}"]`);
+    const out = (name: string) => root.querySelector<HTMLOutputElement>(`[data-sm-out="${name}"]`);
+    const fields = {
+      delivery: get('delivery'),
+      mount: get('mount'),
+      rate: get('rate'),
+      months: get('months'),
+      shifts: get('shifts'),
+      dismount: get('dismount'),
+      seismic: get('seismic'),
+    };
+    const outs = { rent: out('rent'), auto: out('auto'), total: out('total'), permonth: out('permonth') };
+    const seismicRow = root.querySelector<HTMLElement>('[data-sm-row="seismic"]');
+    const seismicToggle = root.querySelector<HTMLInputElement>('[data-sm-toggle="seismic"]');
+    const note = root.querySelector<HTMLElement>('[data-sm-note]');
+    const verdict = root.querySelector<HTMLElement>('[data-sm-verdict]');
+    if (!fields.rate || !fields.months || !outs.rent || !outs.total || !outs.permonth) return;
+
+    const AUTO_RATE = 4000;
+    const SHIFT_HOURS = 8;
+    const fmt = (n: number) => Math.round(n).toLocaleString('ru-RU');
+    const num = (el: HTMLInputElement | null, fallback = 0) => {
+      if (!el) return fallback;
+      const v = Number(el.value);
+      return Number.isFinite(v) && v > 0 ? v : 0;
+    };
+
+    function recalc() {
+      const months = Math.max(1, Math.min(48, Math.round(num(fields.months, 1)) || 1));
+      const rent = num(fields.rate) * months;
+      const auto = AUTO_RATE * SHIFT_HOURS * Math.round(num(fields.shifts));
+      const seismicOn = !!seismicToggle?.checked;
+      const seismic = seismicOn ? num(fields.seismic) : 0;
+      const once = num(fields.delivery) + num(fields.mount) + num(fields.dismount) + seismic;
+      const total = once + rent + auto;
+      const perMonth = total / months;
+
+      outs.rent!.textContent = fmt(rent);
+      if (outs.auto) outs.auto.textContent = fmt(auto);
+      outs.total!.textContent = fmt(total);
+      outs.permonth!.textContent = fmt(perMonth);
+
+      // Вердикт появляется только когда есть что сказать: разовые строки заполнены
+      // и реально сдвигают стоимость месяца больше чем на 1 %.
+      if (verdict) {
+        const base = num(fields.rate);
+        if (once + auto > 0 && base > 0) {
+          const diff = ((perMonth - base) / base) * 100;
+          verdict.innerHTML =
+            diff >= 1
+              ? `С учётом разовых строк месяц обходится в <b>${fmt(perMonth)} ₽</b> — это на ${Math.round(diff)}% дороже ставки в предложении. Разовые расходы размазываются по сроку: чем короче аренда, тем заметнее разрыв.`
+              : `С учётом разовых строк месяц обходится в <b>${fmt(perMonth)} ₽</b>.`;
+        } else {
+          verdict.textContent = '';
+        }
+      }
+    }
+
+    Object.values(fields).forEach((el) => el?.addEventListener('input', recalc));
+    // Поле срока приводим к допустимому диапазону по окончании ввода: иначе в поле
+    // могло остаться «-5», хотя считали мы по одному месяцу — таблица показывала бы
+    // одно, а поле утверждало другое.
+    fields.months?.addEventListener('change', () => {
+      const v = Math.max(1, Math.min(48, Math.round(num(fields.months, 1)) || 1));
+      if (String(v) !== fields.months!.value) fields.months!.value = String(v);
+      recalc();
+    });
+    seismicToggle?.addEventListener('change', () => {
+      const on = !!seismicToggle.checked;
+      if (seismicRow) seismicRow.hidden = !on;
+      if (note) note.hidden = !on;
+      recalc();
+    });
+    recalc();
+  }
+  initSmeta();
+</script>

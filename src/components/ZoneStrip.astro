@@ -1,0 +1,22 @@
+---
+// Переключатель зон: соседние баллы всегда под рукой, текущий помечен aria-current.
+export interface Props {
+  current: 7 | 8 | 9;
+}
+const { current } = Astro.props;
+const zones = [
+  { ball: 7, href: '/seysmozony/7-ballov/', label: '7 баллов · 0,1g' },
+  { ball: 8, href: '/seysmozony/8-ballov/', label: '8 баллов · 0,2g' },
+  { ball: 9, href: '/seysmozony/9-ballov/', label: '9 баллов · 0,4g' },
+];
+---
+<nav class="strip" aria-label="Расчётная сейсмичность площадки">
+  <ol class="strip__list">
+    <li class="strip__item"><a href="/seysmozony/"><b>·</b> Как считают балл</a></li>
+    {zones.map((z) => (
+      <li class={z.ball === current ? 'strip__item is-current' : 'strip__item'}>
+        {z.ball === current ? <span aria-current="page">{z.label}</span> : <a href={z.href}>{z.label}</a>}
+      </li>
+    ))}
+  </ol>
+</nav>

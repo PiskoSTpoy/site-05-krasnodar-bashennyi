@@ -1,0 +1,106 @@
+---
+// Суточная шкала: что разрешено делать в каждый час.
+// Это не украшение, а тот же факт, что и в соседней таблице, — но видимый целиком.
+// Именно на суточной шкале становится очевидно то, что в тексте теряется:
+// разрешённые окна не совпадают друг с другом.
+//
+// Доступность: SVG помечен aria-hidden, потому что ровно те же данные на странице
+// уже выражены обычной таблицей с заголовками строк и столбцов — дублировать их
+// для скринридера значило бы заставить читать одно и то же дважды.
+
+export interface Segment {
+  from: number; // час начала, 0-24
+  to: number;   // час конца, 0-24
+}
+export interface Row {
+  label: string;
+  hint?: string;
+  allowed: Segment[];
+}
+export interface Props {
+  rows: Row[];
+  caption?: string;
+}
+const { rows, caption } = Astro.props;
+
+const W = 960;
+const ROW_H = 38;
+const GAP = 16;
+// Полка под подписи часов поднята с 28 до 40 единиц viewBox, а базовая линия
+// подписи — с 14 до 26. Причина в мобильном кегле (см. .dayband__hour ниже):
+// при 29 единицах прописные цифры поднимаются над базовой линией примерно на
+// 21 единицу, и на прежней базовой линии 14 верх «00:00» уходил за границу
+// viewBox и обрезался. На широком экране, где кегль остался 15, это просто
+// чуть больше воздуха над полосой.
+const TOP = 40;
+const TICK_TOP = 32;
+const HOUR_BASELINE = 26;
+const H = TOP + rows.length * (ROW_H + GAP);
+const x = (hour: number) => (hour / 24) * W;
+const ticks = [0, 3, 6, 9, 12, 15, 18, 21, 24];
+---
+<figure class="dayband">
+  <svg viewBox={`0 0 ${W} ${H}`} role="presentation" aria-hidden="true" focusable="false">
+    {ticks.map((t) => (
+      <line x1={x(t)} y1={TICK_TOP} x2={x(t)} y2={H} stroke="var(--line)" stroke-width="1" />
+    ))}
+    {ticks.slice(0, -1).map((t) => (
+      <text class="dayband__hour" x={x(t) + 6} y={HOUR_BASELINE} fill="#6B6157" font-size="15">{String(t).padStart(2, '0')}:00</text>
+    ))}
+    {rows.map((row, i) => {
+      const y = TOP + i * (ROW_H + GAP);
+      return (
+        <g>
+          <rect x="0" y={y} width={W} height={ROW_H} fill="#FFFFFF" stroke="var(--line)" stroke-width="1" />
+          {row.allowed.map((s) => (
+            <rect x={x(s.from)} y={y} width={x(s.to) - x(s.from)} height={ROW_H} fill="var(--accent)" />
+          ))}
+        </g>
+      );
+    })}
+  </svg>
+  <ul class="dayband__legend">
+    {rows.map((row) => (
+      <li>
+        <b>{row.label}</b>
+        <span>{row.allowed.map((s) => `${String(s.from).padStart(2, '0')}:00–${String(s.to).padStart(2, '0')}:00`).join(', ')}</span>
+        {row.hint && <em>{row.hint}</em>}
+      </li>
+    ))}
+  </ul>
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>
+
+<style>
+  .dayband { margin: 26px 0 0; }
+  .dayband svg { width: 100%; height: auto; display: block; }
+  /* Шкала часов внутри SVG. Раньше гарнитура была вписана в сам <text>
+     атрибутом font-family="PT Sans" — после смены набора это осталось бы
+     единственным местом сайта, где текст рисуется старым, уже не
+     загружаемым шрифтом, то есть системным. Теперь берётся общая переменная,
+     цифры табличные — колонки «00:00 / 03:00 / …» стоят ровно. */
+  .dayband__hour { font-family: var(--text); font-variant-numeric: tabular-nums; }
+  .dayband__legend { list-style: none; margin: 18px 0 0; padding: 0; display: grid; gap: 12px; border-top: 1px solid var(--rule); padding-top: 14px; }
+  .dayband__legend li { display: grid; grid-template-columns: 240px auto; gap: 6px 18px; align-items: baseline; font-family: var(--text); font-size: var(--t-aux); }
+  .dayband__legend b { color: var(--ink); }
+  .dayband__legend b::before { content: ""; display: inline-block; width: 12px; height: 12px; background: var(--accent); margin-right: 8px; vertical-align: -1px; }
+  .dayband__legend span { color: var(--accent); font-weight: 700; font-variant-numeric: tabular-nums; }
+  /* курсив — только Literata: у Prata курсивного начертания не существует */
+  .dayband__legend em { grid-column: 1 / -1; font-family: var(--text); font-style: italic; color: var(--muted); font-size: var(--t-aux); }
+  .dayband figcaption { margin-top: 14px; font-size: var(--t-note); color: var(--muted); max-width: 66ch; }
+  @media (max-width: 640px) {
+    .dayband__legend li { grid-template-columns: 1fr; }
+  }
+  /* ── Шкала часов на телефоне ──────────────────────────────────────────
+     Найдено на кадре, а не замером. viewBox у полосы 960 единиц в ширину,
+     на экране 375 px она сжимается в 2,56 раза — и подписи часов, набранные
+     font-size="15" в единицах viewBox, приезжают на экран кеглем 5,9 px.
+     Это не мелкий шрифт, а нечитаемая рябь: цифры «00:00 / 03:00 / …»
+     различаются только по месту, а не по начертанию.
+     29 единиц дают на 375 px те же 11,3 px, что у рубрик сайта. Столкнуться
+     подписи не могут: шаг между рисками 375/8 = 47 px, ширина «00:00»
+     табличными цифрами — около 30. */
+  @media (max-width: 560px) {
+    .dayband__hour { font-size: 29px; }
+  }
+</style>

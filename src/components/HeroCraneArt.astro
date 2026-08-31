@@ -1,0 +1,189 @@
+---
+// Волна 19. Hero-иллюстрация досье — визуальный якорь секции .dossier.
+// Мотив взят из Волны 9/10 (описание сохранилось в content-plan.md,
+// сам SVG-код к моменту Волны 16 в репозитории не сохранился — ни в
+// исходниках, ни в dist, ни в других сайтах сети; воссоздан заново по
+// зафиксированному описанию, а не выдуман с нуля): башенный кран
+// (решётчатая мачта, стрела и контр-стрела с противовесом, кабина,
+// трос с подвешенным грузом) + строящееся здание рядом (этажные линии
+// + «арматура» незаконченного верхнего этажа) + автокран на площадке
+// + тонкая волнистая линия побережья вверху.
+// Добавлено для Волны 19: приземная линия — не прямая, а сейсмограмма
+// с одним всплеском ровно под основанием башенного крана — отсылка
+// к сейсмическому расчёту фундамента, который разбирает сайт.
+// Только острые углы (stroke-linejoin: miter, stroke-linecap: square),
+// без скруглений/теней/градиентов, только токены сайта (--ink/--accent/
+// --muted/--line/--bg) — design-code.md «экспертный редакционный».
+
+const W = 440;
+const H = 560;
+
+// ── Береговая линия: пологая волна вдоль верхней кромки сцены ──────────────
+const coastPts = Array.from({ length: 23 }, (_, i) => {
+  const x = (i / 22) * W;
+  const y = 42 + Math.sin(i * 0.9) * 6;
+  return `${x.toFixed(1)},${y.toFixed(1)}`;
+}).join(' ');
+
+// ── Земля-сейсмограмма: почти ровная линия с одним всплеском под краном ────
+const groundY = 522;
+const craneCx = 300; // центр мачты — всплеск сейсмограммы выровнен по нему
+const seisPts = Array.from({ length: 89 }, (_, i) => {
+  const x = (i / 88) * W;
+  const t = x / W;
+  const burstCx = craneCx / W;
+  const envelope = Math.exp(-((t - burstCx) ** 2) / (2 * 0.05 ** 2));
+  const y = groundY + Math.sin(i * 1.7) * (1.2 + envelope * 13);
+  return `${x.toFixed(1)},${y.toFixed(1)}`;
+}).join(' ');
+
+// ── Здание в постройке: 5 готовых этажей + один незаконченный ──────────────
+const bldX0 = 34;
+const bldX1 = 168;
+const floorH = 42;
+const floors = 5;
+const bldTop = groundY - floors * floorH; // верх готовой части
+const floorLines = Array.from({ length: floors - 1 }, (_, i) => groundY - (i + 1) * floorH);
+// окна: по 3 на этаж, только контур
+const windows = Array.from({ length: floors }, (_, row) => {
+  const y0 = groundY - (row + 1) * floorH + 11;
+  return [0, 1, 2].map((col) => {
+    const x0 = bldX0 + 14 + col * 40;
+    return { x: x0, y: y0, w: 22, h: 20 };
+  });
+}).flat();
+// арматура недостроенного этажа — короткие вертикальные штрихи с изломом сверху
+const rebar = [bldX0 + 14, bldX0 + 46, bldX0 + 80, bldX0 + 114, bldX1 - 12].map((x, i) => ({
+  x,
+  topY: bldTop - 26 - (i % 2 === 0 ? 8 : 0),
+}));
+
+// ── Решётчатая мачта башенного крана: два рельса + зигзаг-раскосы ──────────
+const mastRailL = craneCx - 15;
+const mastRailR = craneCx + 15;
+const mastTopY = 96;
+const mastSegs = 11;
+const braceStep = (groundY - mastTopY) / mastSegs;
+const bracePts = Array.from({ length: mastSegs + 1 }, (_, i) => {
+  const y = groundY - i * braceStep;
+  const x = i % 2 === 0 ? mastRailL : mastRailR;
+  return `${x.toFixed(1)},${y.toFixed(1)}`;
+}).join(' ');
+
+// ── Автокран: короткая укосина на шасси, левее и ближе к зрителю ───────────
+const mcX = 208; // база шасси
+const mcGround = groundY;
+---
+<!--
+  Декоративная линейная иллюстрация: башенный кран с решётчатой мачтой,
+  стрелой и противовесом, строящееся здание, автокран на площадке и
+  береговая линия — не фотография техники. Приземная линия — сейсмограмма
+  со всплеском под основанием крана. Те же факты уже даны текстом на
+  странице (нормы, сейсмичность, режим тишины), поэтому для скринридера
+  иллюстрация полностью скрыта.
+-->
+<svg
+  class="hero-crane-art"
+  viewBox={`0 0 ${W} ${H}`}
+  role="presentation"
+  aria-hidden="true"
+  focusable="false"
+  preserveAspectRatio="xMidYMax meet"
+>
+  <!-- побережье -->
+  <polyline points={coastPts} class="hca-coast" />
+
+  <!-- земля / сейсмограмма -->
+  <polyline points={seisPts} class="hca-ground" />
+
+  <!-- здание -->
+  <g class="hca-building">
+    <rect x={bldX0} y={bldTop} width={bldX1 - bldX0} height={groundY - bldTop} class="hca-outline" />
+    {floorLines.map((y) => (
+      <line x1={bldX0} y1={y} x2={bldX1} y2={y} class="hca-thin" />
+    ))}
+    {windows.map((w) => (
+      <rect x={w.x} y={w.y} width={w.w} height={w.h} class="hca-thin" />
+    ))}
+    {rebar.map((r) => (
+      <polyline points={`${r.x},${bldTop} ${r.x},${r.topY} ${r.x + 4},${r.topY - 10}`} class="hca-thin" />
+    ))}
+  </g>
+
+  <!-- автокран -->
+  <g class="hca-mobile">
+    <!-- шасси -->
+    <rect x={mcX - 46} y={mcGround - 20} width="92" height="20" class="hca-outline" />
+    <!-- колёса: квадратные метки, без скруглений -->
+    <rect x={mcX - 36} y={mcGround} width="12" height="10" class="hca-fillmuted" />
+    <rect x={mcX + 24} y={mcGround} width="12" height="10" class="hca-fillmuted" />
+    <!-- кабина -->
+    <rect x={mcX - 44} y={mcGround - 34} width="20" height="14" class="hca-outline" />
+    <!-- укосина стрелы -->
+    <polyline points={`${mcX - 10},${mcGround - 20} ${mcX - 10},${mcGround - 40} ${mcX + 58},${mcGround - 96}`} class="hca-outline" />
+    <!-- опоры -->
+    <polyline points={`${mcX - 30},${mcGround} ${mcX - 42},${mcGround + 12}`} class="hca-thin" />
+    <polyline points={`${mcX + 30},${mcGround} ${mcX + 42},${mcGround + 12}`} class="hca-thin" />
+  </g>
+
+  <!-- башенный кран -->
+  <g class="hca-tower">
+    <!-- мачта: два рельса -->
+    <line x1={mastRailL} y1={groundY} x2={mastRailL} y2={mastTopY} class="hca-outline" />
+    <line x1={mastRailR} y1={groundY} x2={mastRailR} y2={mastTopY} class="hca-outline" />
+    <!-- раскосы решётки -->
+    <polyline points={bracePts} class="hca-thin" />
+    <!-- опорная база -->
+    <line x1={mastRailL - 14} y1={groundY} x2={mastRailR + 14} y2={groundY} class="hca-outline" />
+
+    <!-- кабина / оголовок -->
+    <rect x={craneCx - 22} y={mastTopY - 18} width="30" height="18" class="hca-outline" />
+
+    <!-- контр-стрела + противовес (влево) -->
+    <line x1={craneCx} y1={mastTopY} x2={craneCx - 74} y2={mastTopY} class="hca-outline" />
+    <rect x={craneCx - 76} y={mastTopY - 2} width="20" height="16" class="hca-fillbg" />
+    <rect x={craneCx - 96} y={mastTopY - 2} width="18" height="16" class="hca-fillbg" />
+    <!-- растяжка контр-стрелы -->
+    <polyline points={`${craneCx},${mastTopY - 34} ${craneCx - 60},${mastTopY}`} class="hca-thin" />
+
+    <!-- главная стрела (вправо) -->
+    <line x1={craneCx} y1={mastTopY} x2={craneCx + 128} y2={mastTopY} class="hca-outline" />
+    <!-- вершина мачты + растяжка стрелы -->
+    <line x1={craneCx} y1={mastTopY} x2={craneCx} y2={mastTopY - 34} class="hca-outline" />
+    <polyline points={`${craneCx},${mastTopY - 34} ${craneCx + 118},${mastTopY}`} class="hca-thin" />
+    <polyline points={`${craneCx},${mastTopY - 34} ${craneCx + 60},${mastTopY}`} class="hca-thin" />
+
+    <!-- тележка на стреле -->
+    <rect x={craneCx + 92} y={mastTopY - 4} width="10" height="8" class="hca-outline" />
+
+    <!-- трос и подвешенный груз (акцент) -->
+    <line x1={craneCx + 97} y1={mastTopY + 4} x2={craneCx + 97} y2="256" class="hca-rope" />
+    <rect x={craneCx + 80} y="256" width="34" height="22" class="hca-load" />
+    <line x1={craneCx + 84} y1="256" x2={craneCx + 84} y2="278" class="hca-rope-thin" />
+    <line x1={craneCx + 110} y1="256" x2={craneCx + 110} y2="278" class="hca-rope-thin" />
+  </g>
+</svg>
+
+<style>
+  .hero-crane-art {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .hero-crane-art :is(line, polyline, rect) {
+    fill: none;
+    stroke-linejoin: miter;
+    stroke-linecap: square;
+    vector-effect: non-scaling-stroke;
+  }
+  .hca-coast { stroke: var(--muted); stroke-width: 1.25; opacity: .55; }
+  .hca-ground { stroke: var(--line); stroke-width: 1.25; }
+  .hca-outline { stroke: var(--ink); stroke-width: 2; }
+  .hca-thin { stroke: var(--muted); stroke-width: 1; }
+  .hca-fillmuted { fill: var(--muted); stroke: none; }
+  .hca-fillbg { fill: var(--bg); stroke: var(--ink); stroke-width: 2; }
+  .hca-rope { stroke: var(--accent); stroke-width: 1.5; }
+  .hca-rope-thin { stroke: var(--accent); stroke-width: 1; opacity: .7; }
+  .hca-load { fill: var(--bg); stroke: var(--accent); stroke-width: 2; }
+</style>

@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { stages } from '../data/stages';
+---
+<BaseLayout title="Страница не найдена — КРАН-КУБАНЬ" description="Запрошенная страница не найдена." path="/404/">
+<main>
+  <section class="section wrap" style="max-width:820px">
+    <span class="eyebrow">404</span>
+    <h1 style="font-size:var(--d-lg);margin-top:14px">Такой страницы нет</h1>
+    <p style="color:var(--muted);margin-top:14px;max-width:60ch">
+      Возможно, ссылка устарела: раздел услуг и примеров задач мы разобрали по этапам работы крана,
+      а географию по городам заменили разбором по сейсмическим зонам. Вот куда стоит идти.
+    </p>
+    <dl class="factline">
+      {stages.map((s) => (
+        <div>
+          <dt><a href={s.href} style="color:var(--accent)">{s.num} · {s.name}</a></dt>
+          <dd>Этап жизненного цикла крана на объекте</dd>
+        </div>
+      ))}
+      <div>
+        <dt><a href="/seysmozony/" style="color:var(--accent)">Сейсмические зоны</a></dt>
+        <dd>Как определяют расчётную сейсмичность площадки и что меняет каждый балл</dd>
+      </div>
+      <div>
+        <dt><a href="/#smeta" style="color:var(--accent)">Смета владения</a></dt>
+        <dd>Стоимость месяца с учётом мобилизации, аренды и демонтажа</dd>
+      </div>
+      <div>
+        <dt><a href="/documents/" style="color:var(--accent)">Документы монтажа</a></dt>
+        <dd>ППР, приёмка кранового пути, расчёт основания, график по режиму тишины</dd>
+      </div>
+    </dl>
+    <p style="margin-top:28px"><a class="btn" href="/">На главную</a></p>
+  </section>
+</main>
+</BaseLayout>

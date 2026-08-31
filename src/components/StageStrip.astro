@@ -1,0 +1,25 @@
+---
+// Полоса этапов: где вы находитесь в жизненном цикле крана и куда ведёт стрелка.
+// Это не «хлебные крошки» и не шаги визарда — все пять этапов доступны всегда,
+// текущий помечен aria-current, остальные остаются живыми ссылками.
+import { stages } from '../data/stages';
+
+export interface Props {
+  current: string;
+}
+const { current } = Astro.props;
+const idx = stages.findIndex((s) => s.slug === current);
+---
+<nav class="strip" aria-label="Этапы жизненного цикла крана">
+  <ol class="strip__list">
+    {stages.map((s, i) => (
+      <li class={i === idx ? 'strip__item is-current' : 'strip__item'}>
+        {i === idx ? (
+          <span aria-current="step"><b>{s.num}</b> {s.short}</span>
+        ) : (
+          <a href={s.href}><b>{s.num}</b> {s.short}</a>
+        )}
+      </li>
+    ))}
+  </ol>
+</nav>

@@ -1,0 +1,23 @@
+---
+// Волна 23. Переключатель внутри раздела «Парк техники» — тот же приём, что
+// ZoneStrip у /seysmozony/*: обзор + карточки моделей всегда под рукой, текущая
+// помечена aria-current, реестр берётся из data/parkModels.ts.
+import { parkModels } from '../data/parkModels';
+
+export interface Props {
+  current?: string;
+}
+const { current } = Astro.props;
+---
+<nav class="strip" aria-label="Парк техники">
+  <ol class="strip__list">
+    <li class={!current ? 'strip__item is-current' : 'strip__item'}>
+      {!current ? <span aria-current="page"><b>·</b> Весь парк</span> : <a href="/park/"><b>·</b> Весь парк</a>}
+    </li>
+    {parkModels.map((m) => (
+      <li class={m.slug === current ? 'strip__item is-current' : 'strip__item'}>
+        {m.slug === current ? <span aria-current="page">{m.short}</span> : <a href={m.href}>{m.short}</a>}
+      </li>
+    ))}
+  </ol>
+</nav>
