@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Волна 16 (смена главной оси сайта): из карты убраны URL разделов /uslugi/,
+     /keysy/ и /geo/ — их содержание переехало в /etapy/ и /seysmozony/, а сами
+     адреса отдаются 301-м (список в astro.config.mjs). Добавлены шесть страниц
+     раздела «Этапы» и четыре страницы раздела «Сейсмические зоны».
+     Волна 14 ранее убрала из карты четыре URL: их содержание разошлось по
+     разделам /documents/ и /etapy/, сами адреса склеены 301-м.
+
+     lastmod в ЭТОМ файле не пишется руками: его проставляет
+     scripts/sitemap-lastmod.mjs уже в сборке, из mtime исходного файла каждой
+     страницы. Тот же скрипт сверяет состав карты с деревом собранных страниц
+     и роняет сборку при расхождении — раньше карта отставала молча. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://kran-kuban.example/</loc><lastmod>2026-08-26T16:01:43+03:00</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
+
+  <url><loc>https://kran-kuban.example/etapy/</loc><lastmod>2026-08-26T16:01:10+03:00</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://kran-kuban.example/etapy/izyskaniya-i-grunt/</loc><lastmod>2026-08-26T16:01:10+03:00</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://kran-kuban.example/etapy/proekt-i-ppr/</loc><lastmod>2026-08-26T16:01:10+03:00</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://kran-kuban.example/etapy/montazh-i-ankerovka/</loc><lastmod>2026-08-26T16:01:10+03:00</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://kran-kuban.example/etapy/ekspluatatsiya-i-tishina/</loc><lastmod>2026-08-26T16:01:10+03:00</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://kran-kuban.example/etapy/demontazh-i-perebazirovka/</loc><lastmod>2026-08-26T16:01:10+03:00</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+
+  <url><loc>https://kran-kuban.example/seysmozony/</loc><lastmod>2026-08-26T16:01:10+03:00</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://kran-kuban.example/seysmozony/7-ballov/</loc><lastmod>2026-08-26T16:01:10+03:00</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.example/seysmozony/8-ballov/</loc><lastmod>2026-08-26T16:01:10+03:00</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.example/seysmozony/9-ballov/</loc><lastmod>2026-08-26T16:01:10+03:00</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+
+  <url><loc>https://kran-kuban.example/park/</loc><lastmod>2026-08-26T16:01:10+03:00</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://kran-kuban.example/park/potain-mdt-219-j10/</loc><lastmod>2026-08-26T16:01:10+03:00</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.example/park/kb-408-21/</loc><lastmod>2026-08-26T16:01:10+03:00</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.example/park/kb-674a/</loc><lastmod>2026-08-26T16:01:10+03:00</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.example/park/giraffe-smk-5-66/</loc><lastmod>2026-08-26T16:01:10+03:00</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.example/park/potain-mch-175/</loc><lastmod>2026-08-26T16:01:10+03:00</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+
+  <!-- Волна 51: /partnerskaya-set/ (создана Волной 30) отсутствовала в карте — пропуск найден и закрыт попутно. -->
+  <url><loc>https://kran-kuban.example/partnerskaya-set/</loc><lastmod>2026-08-26T16:01:18+03:00</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+
+  <url><loc>https://kran-kuban.example/documents/</loc><lastmod>2026-08-26T16:01:10+03:00</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.example/faq/</loc><lastmod>2026-08-26T16:01:10+03:00</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://kran-kuban.example/blog/</loc><lastmod>2026-08-26T16:01:10+03:00</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://kran-kuban.example/blog/seysmika-i-zakon-o-tishine/</loc><lastmod>2026-08-26T16:01:10+03:00</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.example/blog/izyskaniya-pered-montazhom-krana/</loc><lastmod>2026-08-26T16:01:49+03:00</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.example/blog/uroven-shuma-v-decibelah/</loc><lastmod>2026-08-26T16:01:10+03:00</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.example/blog/seysmicheskoe-mikrorayonirovanie/</loc><lastmod>2026-08-26T16:01:10+03:00</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.example/blog/uroven-otvetstvennosti-obekta/</loc><lastmod>2026-08-26T16:01:10+03:00</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.example/blog/kran-vo-vremya-nord-osta/</loc><lastmod>2026-08-26T16:01:10+03:00</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.example/blog/kran-dlya-promzony-armavira/</loc><lastmod>2026-08-26T16:01:10+03:00</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.example/blog/kran-dlya-goryachego-klyucha/</loc><lastmod>2026-08-26T16:01:10+03:00</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.example/blog/kran-dlya-apsheronskogo-rayona/</loc><lastmod>2026-08-26T16:01:10+03:00</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.example/blog/kran-dlya-mostovskogo-rayona/</loc><lastmod>2026-08-26T16:01:10+03:00</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+
+  <url><loc>https://kran-kuban.example/kontakty/</loc><lastmod>2026-08-26T16:01:10+03:00</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://kran-kuban.example/politika-obrabotki-personalnyh-dannyh/</loc><lastmod>2026-08-26T16:02:35+03:00</lastmod><changefreq>yearly</changefreq><priority>0.2</priority></url>
+  <url><loc>https://kran-kuban.example/soglasie-na-obrabotku-personalnyh-dannyh/</loc><lastmod>2026-08-26T16:02:53+03:00</lastmod><changefreq>yearly</changefreq><priority>0.2</priority></url>
+</urlset>
