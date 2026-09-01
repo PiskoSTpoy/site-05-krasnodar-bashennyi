@@ -11,45 +11,45 @@
      страницы. Тот же скрипт сверяет состав карты с деревом собранных страниц
      и роняет сборку при расхождении — раньше карта отставала молча. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://kran-kuban.example/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://kran-kuban.ru/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
 
-  <url><loc>https://kran-kuban.example/etapy/</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://kran-kuban.example/etapy/izyskaniya-i-grunt/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://kran-kuban.example/etapy/proekt-i-ppr/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://kran-kuban.example/etapy/montazh-i-ankerovka/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://kran-kuban.example/etapy/ekspluatatsiya-i-tishina/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://kran-kuban.example/etapy/demontazh-i-perebazirovka/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://kran-kuban.ru/etapy/</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://kran-kuban.ru/etapy/izyskaniya-i-grunt/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://kran-kuban.ru/etapy/proekt-i-ppr/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://kran-kuban.ru/etapy/montazh-i-ankerovka/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://kran-kuban.ru/etapy/ekspluatatsiya-i-tishina/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://kran-kuban.ru/etapy/demontazh-i-perebazirovka/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
 
-  <url><loc>https://kran-kuban.example/seysmozony/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://kran-kuban.example/seysmozony/7-ballov/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://kran-kuban.example/seysmozony/8-ballov/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://kran-kuban.example/seysmozony/9-ballov/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.ru/seysmozony/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://kran-kuban.ru/seysmozony/7-ballov/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.ru/seysmozony/8-ballov/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.ru/seysmozony/9-ballov/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
 
-  <url><loc>https://kran-kuban.example/park/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://kran-kuban.example/park/potain-mdt-219-j10/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://kran-kuban.example/park/kb-408-21/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://kran-kuban.example/park/kb-674a/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://kran-kuban.example/park/giraffe-smk-5-66/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://kran-kuban.example/park/potain-mch-175/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.ru/park/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://kran-kuban.ru/park/potain-mdt-219-j10/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.ru/park/kb-408-21/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.ru/park/kb-674a/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.ru/park/giraffe-smk-5-66/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.ru/park/potain-mch-175/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
 
   <!-- Волна 51: /partnerskaya-set/ (создана Волной 30) отсутствовала в карте — пропуск найден и закрыт попутно. -->
-  <url><loc>https://kran-kuban.example/partnerskaya-set/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://kran-kuban.ru/partnerskaya-set/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
 
-  <url><loc>https://kran-kuban.example/documents/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://kran-kuban.example/faq/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://kran-kuban.example/blog/</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://kran-kuban.example/blog/seysmika-i-zakon-o-tishine/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://kran-kuban.example/blog/izyskaniya-pered-montazhom-krana/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://kran-kuban.example/blog/uroven-shuma-v-decibelah/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://kran-kuban.example/blog/seysmicheskoe-mikrorayonirovanie/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://kran-kuban.example/blog/uroven-otvetstvennosti-obekta/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://kran-kuban.example/blog/kran-vo-vremya-nord-osta/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://kran-kuban.example/blog/kran-dlya-promzony-armavira/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://kran-kuban.example/blog/kran-dlya-goryachego-klyucha/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://kran-kuban.example/blog/kran-dlya-apsheronskogo-rayona/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://kran-kuban.example/blog/kran-dlya-mostovskogo-rayona/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.ru/documents/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.ru/faq/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://kran-kuban.ru/blog/</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://kran-kuban.ru/blog/seysmika-i-zakon-o-tishine/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.ru/blog/izyskaniya-pered-montazhom-krana/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.ru/blog/uroven-shuma-v-decibelah/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.ru/blog/seysmicheskoe-mikrorayonirovanie/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.ru/blog/uroven-otvetstvennosti-obekta/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.ru/blog/kran-vo-vremya-nord-osta/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.ru/blog/kran-dlya-promzony-armavira/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.ru/blog/kran-dlya-goryachego-klyucha/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.ru/blog/kran-dlya-apsheronskogo-rayona/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kran-kuban.ru/blog/kran-dlya-mostovskogo-rayona/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
 
-  <url><loc>https://kran-kuban.example/kontakty/</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://kran-kuban.example/politika-obrabotki-personalnyh-dannyh/</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
-  <url><loc>https://kran-kuban.example/soglasie-na-obrabotku-personalnyh-dannyh/</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
+  <url><loc>https://kran-kuban.ru/kontakty/</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://kran-kuban.ru/politika-obrabotki-personalnyh-dannyh/</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
+  <url><loc>https://kran-kuban.ru/soglasie-na-obrabotku-personalnyh-dannyh/</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
 </urlset>

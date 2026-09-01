@@ -1,7 +1,7 @@
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-  site: 'https://kran-kuban.example',
+  site: 'https://kran-kuban.ru',
 
   redirects: {
     // ── Волна 14 (дедупликация) + Волна 17 (топология) ─────────────────────

@@ -6,7 +6,7 @@ export interface Props {
   ldExtra?: object[];
 }
 const { title, description, path, ldExtra = [] } = Astro.props;
-const SITE = 'https://kran-kuban.example';
+const SITE = 'https://kran-kuban.ru';
 const BRAND = 'КРАН-КУБАНЬ';
 
 // Один узел организации на страницу, а не два.
@@ -22,7 +22,7 @@ const ldBusiness = {
   '@id': SITE + '/#organization',
   name: BRAND,
   telephone: '+79099815415',
-  email: 'info@kran-kuban.example',
+  email: 'info@kran-kuban.ru',
   url: SITE,
   priceRange: '₽₽',
   address: { '@type': 'PostalAddress', addressRegion: 'Краснодарский край', addressCountry: 'RU' },
@@ -520,7 +520,11 @@ const navMobile = [
     /* ── Волна 19: визуальный якорь досье — штамп дела + hero-иллюстрация ── */
     .dossier__inner { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 300px); gap: clamp(32px, 5vw, 64px); align-items: start; }
     .dossier__col { min-width: 0; }
-    .dossier__art { min-width: 0; display: flex; flex-direction: column; gap: 28px; padding-top: clamp(4px, 1vw, 18px); }
+    /* Штамп сидит в двойной рамке (border + outline, offset 3px) — видимый верхний
+       край на 4px выше border-box. Отступ ниже компенсирует именно это, а не
+       произвольная цифра: без вычета верх печати ехал на ~8px ниже рубрики
+       слева (замечено в приёмке 01.09.2026). */
+    .dossier__art { min-width: 0; display: flex; flex-direction: column; gap: 28px; padding-top: clamp(0px, 1vw, 14px); }
 
     /* Штамп дела: прямоугольная печать на документе — двойная линия, лёгкий
        поворот, ни одного скругления (design-code запрещает их сайту целиком).
@@ -1149,6 +1153,18 @@ const navMobile = [
     .nav-mobile__panel a:active { color: var(--accent-press); }
     .nav-mobile__panel a[aria-current="page"] { color: var(--accent); font-weight: 700; }
   </style>
+  <!-- Yandex.Metrika counter -->
+  <script type="text/javascript" is:inline>
+  (function(m,e,t,r,i,k,a){
+  m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+  m[i].l=1*new Date();
+  for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+  k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+  })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=112123844', 'ym');
+  ym(112123844, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+  </script>
+  <noscript><div><img src="https://mc.yandex.ru/watch/112123844" width="1" height="1" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+  <!-- /Yandex.Metrika counter -->
 </head>
 <body>
   <a href="#main-content" class="skip-link">Перейти к основному содержимому</a>
@@ -1179,7 +1195,7 @@ const navMobile = [
   </header>
   <div id="main-content" tabindex="-1"><slot /></div>
   <footer class="footer wrap">
-    <span>© 2026 {BRAND} · [SITE_05_DOMAIN]</span>
+    <span>© 2026 {BRAND} · kran-kuban.ru</span>
     <!-- Два документа о персональных данных — на КАЖДОЙ странице, а не только
          рядом с формой: они и есть точка, куда посетитель идёт проверять, что
          с его телефоном будет дальше. Ссылки раздельные, потому что с

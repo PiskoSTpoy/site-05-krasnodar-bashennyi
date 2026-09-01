@@ -32,4 +32,4 @@ Allow: /
 User-agent: OAI-SearchBot
 Allow: /
 
-Sitemap: https://kran-kuban.example/sitemap.xml
+Sitemap: https://kran-kuban.ru/sitemap.xml
