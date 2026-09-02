@@ -39,5 +39,14 @@ export default defineConfig({
     '/geo/novorossiysk': { status: 301, destination: '/etapy/ekspluatatsiya-i-tishina/' },
     '/geo/anapa': { status: 301, destination: '/etapy/izyskaniya-i-grunt/' },
     '/geo/krasnodar': { status: 301, destination: '/etapy/proekt-i-ppr/' },
+
+    // ── Аудит 02.09.2026: сами хабы /uslugi/ и /geo/ (без конкретной
+    // подстраницы) отдавали 404 — выше редиректятся только их бывшие
+    // подстраницы, а адрес самого раздела не был учтён нигде. sitemap.xml
+    // утверждает, что раздел целиком редиректит, — теперь это правда.
+    '/uslugi': { status: 301, destination: '/etapy/' },
+    '/uslugi/': { status: 301, destination: '/etapy/' },
+    '/geo': { status: 301, destination: '/seysmozony/' },
+    '/geo/': { status: 301, destination: '/seysmozony/' },
   },
 });
