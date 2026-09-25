@@ -3,7 +3,7 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && node scripts/sitemap-lastmod.mjs",
+    "build": "astro build && node scripts/sitemap-lastmod.mjs && node scripts/geo2026-postbuild.mjs",
     "preview": "astro preview"
   },
   "dependencies": {
