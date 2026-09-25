@@ -1,0 +1,19 @@
+---
+// Волна 96: мобильное оглавление статьи блога вынесено из BlogArticleLayout,
+// чтобы рендерить его либо перед статьёй (старые статьи), либо сразу после
+// intro-абзаца (слот intro, скелет seo-2026-playbook §1: intro → TOC).
+export interface Props {
+  headings: Array<{ id: string; text: string }>;
+}
+const { headings } = Astro.props;
+---
+{headings.length >= 3 && (
+  <details class="toc-mobile">
+    <summary>Оглавление <span class="toc-mobile__count">{headings.length}</span></summary>
+    <nav aria-label="Оглавление статьи (мобильное)"><ol class="toc__list toc__list--mobile">
+      {headings.map((h) => (
+        <li><a href={`#${h.id}`}>{h.text}</a></li>
+      ))}
+    </ol></nav>
+  </details>
+)}
